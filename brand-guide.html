@@ -159,10 +159,11 @@
   /* ═══ Metaphor Code ═══ */
   .metaphor-code {
     font-family: 'Inter', monospace; font-size: clamp(14px,2vw,16px);
-    line-height: 2; color: var(--fg3); padding: 32px;
+    color: var(--fg3); padding: 28px 32px;
     background: var(--code-bg); border-radius: 12px; border: 1px solid var(--border);
     overflow-x: auto;
   }
+  .code-line { line-height: 2; white-space: pre; }
   .metaphor-code .hl { color: var(--fg); font-weight: 500; }
   .metaphor-code .cm { color: var(--fg4); font-style: italic; }
   .metaphor-code .kw { color: var(--fg2); }
@@ -273,18 +274,7 @@
   <!-- 1.2 Brand as Code -->
   <div class="subsection">
     <div class="sub-label" data-i18n="s1.2.label"></div>
-    <div class="metaphor-code"><span class="cm" data-i18n="s1.2.cm1"></span>
-<span class="cm" data-i18n="s1.2.cm2"></span>
-
-<span class="kw">interface</span> <span class="hl">interfn</span> {
-  <span class="kw">fn</span> <span class="hl">call</span>(input: Problem) → Output;
-}
-
-<span class="cm" data-i18n="s1.2.cm3"></span>
-
-<span class="kw">impl</span> <span class="hl">interfn</span> {
-  <span class="kw">fn</span> <span class="hl">call</span>(input) → { <span class="hl">transform(input)</span> }
-}</div>
+    <div class="metaphor-code"><div class="code-line"><span class="cm" data-i18n="s1.2.cm1"></span></div><div class="code-line"><span class="cm" data-i18n="s1.2.cm2"></span></div><div class="code-line">&nbsp;</div><div class="code-line"><span class="kw">interface</span> <span class="hl">interfn</span> {</div><div class="code-line">  <span class="kw">fn</span> <span class="hl">call</span>(input: Problem) → Output;</div><div class="code-line">}</div><div class="code-line">&nbsp;</div><div class="code-line"><span class="cm" data-i18n="s1.2.cm3"></span></div><div class="code-line">&nbsp;</div><div class="code-line"><span class="kw">impl</span> <span class="hl">interfn</span> {</div><div class="code-line">  <span class="kw">fn</span> <span class="hl">call</span>(input) → { <span class="hl">transform(input)</span> }</div><div class="code-line">}</div></div>
     <div class="note" style="text-align:center;" data-i18n="s1.2.note"></div>
   </div>
 
