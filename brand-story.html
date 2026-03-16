@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>interfn</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 124 124' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='124' height='124' rx='24' fill='%23fff'/%3E%3Cpath d='M 100 36 A 64 64 0 1 0 164 100' fill='none' stroke='%230a0a0a' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M 100 140 A 40 40 0 1 0 60 100' fill='none' stroke='%230a0a0a' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&display=swap');
+
+  :root {
+    --bg: #050505;
+    --fg: #e8e8e8;
+    --dim: #555;
+    --ghost: #222;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--fg);
+    font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ═══ Scene (full-screen scroll section) ═══ */
+  .scene {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    padding: clamp(40px, 8vw, 80px) clamp(20px, 5vw, 60px);
+  }
+
+  /* ═══ Scroll-triggered fade ═══ */
+  .reveal {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1);
+  }
+  .reveal.visible {
+    opacity: 1; transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.15s; }
+  .reveal-delay-2 { transition-delay: 0.3s; }
+  .reveal-delay-3 { transition-delay: 0.45s; }
+  .reveal-delay-4 { transition-delay: 0.6s; }
+
+  /* ═══ Typography ═══ */
+  .poem {
+    font-size: clamp(20px, 4vw, 36px); font-weight: 300;
+    line-height: 1.8; text-align: center;
+    max-width: 700px; color: var(--fg);
+  }
+  .poem .dim { color: var(--dim); }
+  .poem .bright { color: #fff; font-weight: 400; }
+
+  .code-block {
+    font-family: 'Inter', monospace;
+    font-size: clamp(14px, 2vw, 18px);
+    line-height: 2.2; color: var(--dim);
+    text-align: left; max-width: 560px; width: 100%;
+  }
+  .code-block .kw { color: #888; }
+  .code-block .hl { color: #e8e8e8; font-weight: 500; }
+  .code-block .cm { color: #333; font-style: italic; }
+
+  .caption {
+    font-size: clamp(13px, 1.8vw, 16px);
+    color: var(--dim); text-align: center;
+    letter-spacing: 0.5px; max-width: 500px;
+  }
+
+  .big-word {
+    font-size: clamp(60px, 15vw, 180px);
+    font-weight: 200; letter-spacing: -4px;
+    color: var(--fg); text-align: center;
+    line-height: 1;
+  }
+
+  /* ═══ Logo Mark ═══ */
+  .mark-container { position: relative; }
+  .mark-svg-main { stroke: #fff; }
+
+  /* ═══ Drawing animation ═══ */
+  .draw-outer {
+    stroke-dasharray: 340; stroke-dashoffset: 340;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1);
+  }
+  .draw-inner {
+    stroke-dasharray: 220; stroke-dashoffset: 220;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.16,1,.3,1) 0.3s;
+  }
+  .drawing .draw-outer { stroke-dashoffset: 0; }
+  .drawing .draw-inner { stroke-dashoffset: 0; }
+
+  /* ═══ Orbit rotation ═══ */
+  @keyframes orbit-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .orbit-animate {
+    animation: orbit-spin 20s linear infinite;
+    transform-origin: center;
+  }
+
+  /* ═══ Pulse glow ═══ */
+  @keyframes pulse-glow {
+    0%, 100% { filter: drop-shadow(0 0 8px rgba(255,255,255,0.05)); }
+    50% { filter: drop-shadow(0 0 40px rgba(255,255,255,0.15)); }
+  }
+  .glow { animation: pulse-glow 4s ease-in-out infinite; }
+
+  /* ═══ Gradient scenes ═══ */
+  .grad-scene {
+    position: absolute; inset: 0;
+    opacity: 0; transition: opacity 1.5s ease;
+  }
+  .grad-scene.active { opacity: 1; }
+  .grad-cold { background: linear-gradient(135deg, #0a1628, #1a237e, #4a148c); }
+  .grad-warm { background: linear-gradient(135deg, #1a0a0a, #8b1a1a, #e65100); }
+  .grad-aurora { background: linear-gradient(135deg, #0d1b2a, #1b2a4a, #4a1942, #7b1a3a, #c2442d); }
+  .grad-forest { background: linear-gradient(135deg, #0a1a0a, #1a3a2a, #2a5a3a, #1a4a4a); }
+  .grad-dawn { background: linear-gradient(135deg, #1a0a2a, #3a1a4a, #7a2a5a, #cc6633, #e8a830); }
+  .grad-space { background: linear-gradient(135deg, #000, #0a0a1e, #1a0a2e, #0a1a1e); }
+
+  /* ═══ Particle field ═══ */
+  .particles {
+    position: absolute; inset: 0; pointer-events: none;
+  }
+  .particle {
+    position: absolute; width: 2px; height: 2px;
+    background: rgba(255,255,255,0.3); border-radius: 50%;
+  }
+
+  /* ═══ Horizontal line reveal ═══ */
+  .h-line {
+    width: 0; height: 1px; background: var(--ghost);
+    transition: width 1.2s cubic-bezier(.16,1,.3,1);
+    margin: 32px auto;
+  }
+  .h-line.visible { width: min(400px, 80vw); }
+
+  /* ═══ Sticky scroll section ═══ */
+  .sticky-wrap {
+    height: 300vh; position: relative;
+  }
+  .sticky-content {
+    position: sticky; top: 0;
+    height: 100vh; display: flex;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  /* ═══ Final lockup ═══ */
+  .lockup {
+    display: flex; align-items: center; gap: 20px;
+    flex-wrap: wrap; justify-content: center;
+  }
+  .lockup-name {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 300; letter-spacing: -1px;
+  }
+  .lockup-sep {
+    width: 1px; height: 40px; background: var(--ghost);
+  }
+
+  /* ═══ Footer ═══ */
+  .footer {
+    padding: 60px 20px; text-align: center;
+    font-size: 13px; color: #333;
+    border-top: 1px solid #111;
+  }
+
+  /* ═══ Responsive ═══ */
+  @media (max-width: 600px) {
+    .big-word { letter-spacing: -2px; }
+    .lockup-sep { height: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 1: VOID — The empty state        -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene" style="min-height:120vh;">
+  <div class="particles" id="particles1"></div>
+  <div class="mark-container reveal" id="heroMark">
+    <svg width="160" height="160" viewBox="0 0 200 200" class="glow">
+      <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg-main draw-outer" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg-main draw-inner" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div style="height:48px;"></div>
+  <div class="poem reveal reveal-delay-2">
+    <span class="dim">비어있는 것은</span><br>
+    <span class="bright">아직 정의되지 않은 것이다.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 2: INTERFACE — The contract      -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene">
+  <div class="big-word reveal">interface</div>
+  <div class="h-line reveal reveal-delay-1"></div>
+  <div class="caption reveal reveal-delay-2">
+    약속만 있고 구현은 없다.<br>
+    하지만 그 약속이 모든 것을 가능하게 한다.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 3: CODE — The definition         -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene" style="background:#030303;">
+  <div class="code-block">
+    <div class="reveal"><span class="cm">// nothing here yet.</span></div>
+    <div class="reveal reveal-delay-1"><span class="cm">// just a shape. a contract.</span></div>
+    <div class="reveal reveal-delay-1" style="height:24px;"></div>
+    <div class="reveal reveal-delay-2"><span class="kw">interface</span> <span class="hl">interfn</span> {</div>
+    <div class="reveal reveal-delay-2">&nbsp;&nbsp;<span class="kw">fn</span> <span class="hl">call</span>(input) → output;</div>
+    <div class="reveal reveal-delay-2">}</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 4: POEM — The question           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene">
+  <div class="poem reveal">
+    <span class="dim">무엇이 들어가고</span><br>
+    <span class="dim">무엇이 나오는가.</span>
+  </div>
+  <div style="height:40px;"></div>
+  <div class="poem reveal reveal-delay-2">
+    <span class="bright">그 사이에서</span><br>
+    <span class="bright">우리가 기능한다.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 5: FUNCTION — The call           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene">
+  <div class="big-word reveal" style="color:#555;">fn()</div>
+  <div class="h-line reveal reveal-delay-1"></div>
+  <div class="code-block reveal reveal-delay-2" style="text-align:center;max-width:100%;">
+    <span class="kw">impl</span> <span class="hl">interfn</span> {<br>
+    &nbsp;&nbsp;<span class="kw">fn</span> <span class="hl">call</span>(input) → { <span class="hl">transform(input)</span> }<br>
+    }
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 6: OUTPUT — The result           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene">
+  <div class="poem reveal">
+    <span class="dim">정의하는 순간,</span>
+  </div>
+  <div style="height:16px;"></div>
+  <div class="mark-container reveal reveal-delay-1">
+    <svg width="120" height="120" viewBox="0 0 200 200" class="orbit-animate glow">
+      <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div style="height:16px;"></div>
+  <div class="poem reveal reveal-delay-2">
+    <span class="bright">결과가 나온다.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 7: COLOR — Any implementation    -->
+<!-- ═══════════════════════════════════════ -->
+<div class="sticky-wrap" id="colorSection">
+  <div class="sticky-content">
+    <div class="grad-scene grad-space active" data-grad="0"></div>
+    <div class="grad-scene grad-cold" data-grad="1"></div>
+    <div class="grad-scene grad-warm" data-grad="2"></div>
+    <div class="grad-scene grad-aurora" data-grad="3"></div>
+    <div class="grad-scene grad-forest" data-grad="4"></div>
+    <div class="grad-scene grad-dawn" data-grad="5"></div>
+
+    <div style="position:relative;z-index:1;text-align:center;">
+      <svg width="100" height="100" viewBox="0 0 200 200" style="margin-bottom:24px;" class="glow">
+        <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+      </svg>
+      <div class="poem" style="font-size:clamp(16px,3vw,24px);">
+        <span style="color:rgba(255,255,255,0.5);">인터페이스는 자체 색이 없다.</span><br>
+        <span style="color:rgba(255,255,255,0.8);">어떤 구현이 와도 동작한다.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 8: ORBIT — The balance           -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene">
+  <div class="code-block reveal" style="text-align:center;max-width:100%;">
+    <span class="cm">// outer orbit: 6px — lighter</span><br>
+    <span class="cm">// inner orbit: 8px — heavier</span><br>
+    <span class="cm">// visual weight: equal</span>
+  </div>
+  <div style="height:40px;"></div>
+  <div class="reveal reveal-delay-1" style="text-align:center;">
+    <svg width="200" height="200" viewBox="0 0 200 200">
+      <!-- Construction ghost -->
+      <circle cx="100" cy="100" r="64" fill="none" stroke="#151515" stroke-width="0.5" stroke-dasharray="3,5"/>
+      <circle cx="100" cy="100" r="40" fill="none" stroke="#151515" stroke-width="0.5" stroke-dasharray="3,5"/>
+      <!-- Mark -->
+      <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div style="height:32px;"></div>
+  <div class="poem reveal reveal-delay-2" style="font-size:clamp(14px,2vw,18px);">
+    <span class="dim">바깥은 가볍게. 안쪽은 묵직하게.</span><br>
+    <span class="dim">그런데 무게는 같다.</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 9: FIBONACCI                     -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene" style="background:#030303;">
+  <div class="reveal" style="display:flex;gap:clamp(8px,2vw,20px);align-items:flex-end;flex-wrap:wrap;justify-content:center;">
+    <div style="text-align:center;opacity:0.2;"><div style="width:4px;height:4px;background:#fff;border-radius:1px;margin:0 auto 6px;"></div><div style="font-size:14px;color:#333;">1</div></div>
+    <div style="text-align:center;opacity:0.2;"><div style="width:4px;height:4px;background:#fff;border-radius:1px;margin:0 auto 6px;"></div><div style="font-size:14px;color:#333;">1</div></div>
+    <div style="text-align:center;opacity:0.25;"><div style="width:8px;height:8px;background:#fff;border-radius:1px;margin:0 auto 6px;"></div><div style="font-size:14px;color:#444;">2</div></div>
+    <div style="text-align:center;opacity:0.4;"><div style="width:16px;height:16px;background:#ff444420;border:1px solid #ff444433;border-radius:2px;margin:0 auto 6px;"></div><div style="font-size:16px;color:#ff6666;">3</div></div>
+    <div style="text-align:center;opacity:0.6;"><div style="width:28px;height:28px;background:#ff884420;border:1px solid #ff884433;border-radius:2px;margin:0 auto 6px;"></div><div style="font-size:18px;color:#ff8844;">5</div></div>
+    <div style="text-align:center;opacity:0.8;"><div style="width:48px;height:48px;background:#4488ff20;border:1px solid #4488ff33;border-radius:2px;margin:0 auto 6px;"></div><div style="font-size:22px;color:#4488ff;">8</div></div>
+    <div style="text-align:center;"><div style="width:72px;height:72px;background:#44ff4410;border:1px solid #44ff4422;border-radius:2px;margin:0 auto 6px;"></div><div style="font-size:26px;color:#44ff44;">13</div></div>
+  </div>
+  <div style="height:32px;"></div>
+  <div class="caption reveal reveal-delay-1">
+    모든 수치가 피보나치 수열 위에 있다.<br>
+    stroke, gap, radius, safe zone — 전부.
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- SCENE 10: FINAL — The name             -->
+<!-- ═══════════════════════════════════════ -->
+<div class="scene" style="min-height:100vh;">
+  <div class="lockup reveal">
+    <svg width="64" height="64" viewBox="0 0 200 200" class="glow">
+      <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+    <div class="lockup-sep"></div>
+    <div class="lockup-name">interfn</div>
+  </div>
+  <div style="height:32px;"></div>
+  <div class="caption reveal reveal-delay-2">
+    당신과 기술 사이의 접점에서 기능한다.
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">interfn — 2026</div>
+
+<script>
+/* ═══ Scroll Reveal ═══ */
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      if (entry.target.id === 'heroMark') {
+        entry.target.querySelector('svg').parentElement.parentElement
+          .querySelector('.mark-container svg')?.parentElement?.classList.add('drawing');
+        document.getElementById('heroMark')?.closest('.scene')?.classList.add('drawing');
+      }
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ═══ Hero draw trigger ═══ */
+const heroScene = document.getElementById('heroMark')?.closest('.scene');
+if (heroScene) {
+  const drawObserver = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) heroScene.classList.add('drawing');
+  }, { threshold: 0.3 });
+  drawObserver.observe(heroScene);
+}
+
+/* ═══ Gradient scroll cycling ═══ */
+const colorSection = document.getElementById('colorSection');
+if (colorSection) {
+  const grads = colorSection.querySelectorAll('.grad-scene');
+  const totalGrads = grads.length;
+
+  window.addEventListener('scroll', () => {
+    const rect = colorSection.getBoundingClientRect();
+    const sectionHeight = colorSection.offsetHeight;
+    const scrolled = -rect.top;
+    const progress = Math.max(0, Math.min(1, scrolled / (sectionHeight - window.innerHeight)));
+    const activeIndex = Math.min(Math.floor(progress * totalGrads), totalGrads - 1);
+
+    grads.forEach((g, i) => {
+      g.classList.toggle('active', i === activeIndex);
+    });
+  }, { passive: true });
+}
+
+/* ═══ Particles ═══ */
+function createParticles(containerId, count) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = Math.random() * 100 + '%';
+    p.style.opacity = Math.random() * 0.4 + 0.1;
+    p.style.width = p.style.height = (Math.random() * 2 + 1) + 'px';
+    p.style.animation = `float ${8 + Math.random() * 12}s ease-in-out infinite`;
+    p.style.animationDelay = Math.random() * 5 + 's';
+    container.appendChild(p);
+  }
+}
+
+const floatKeyframes = `@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
+  25% { transform: translateY(-20px) translateX(10px); opacity: 0.4; }
+  50% { transform: translateY(-10px) translateX(-5px); opacity: 0.15; }
+  75% { transform: translateY(-30px) translateX(8px); opacity: 0.35; }
+}`;
+const styleSheet = document.createElement('style');
+styleSheet.textContent = floatKeyframes;
+document.head.appendChild(styleSheet);
+
+createParticles('particles1', 40);
+</script>
+</body>
+</html>

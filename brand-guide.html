@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<!-- data-theme is overridden by JS on load (system preference or localStorage) -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>interfn — Brand Guide</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg viewBox='0 0 124 124' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='124' height='124' rx='24' fill='%23fff'/%3E%3Cpath d='M 100 36 A 64 64 0 1 0 164 100' fill='none' stroke='%230a0a0a' stroke-width='8' stroke-linecap='round'/%3E%3Cpath d='M 100 140 A 40 40 0 1 0 60 100' fill='none' stroke='%230a0a0a' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Noto+Sans+JP:wght@200;300;400;500&family=Noto+Sans+SC:wght@200;300;400;500&display=swap');
+
+  /* ═══ DARK (default) ═══ */
+  /* Contrast targets: fg on bg ≥ 7:1, fg2 ≥ 4.5:1, fg3 ≥ 4.5:1, fg4 ≥ 3:1 (large text only) */
+  [data-theme="dark"] {
+    --bg: #060606; --bg-el: #0d0d0d; --bg-sub: #151515;
+    --fg: #e8e8e8; --fg2: #b0b0b0; --fg3: #999; --fg4: #777; --fg5: #555; --fg6: #333;
+    --border: #222; --border2: #1a1a1a;
+    --mark: #fff; --mark-inv: #0a0a0a;
+    --good-bg: #0a0d0a; --good-tx: #5a9a5a;
+    --bad-bg: #0d0a0a; --bad-tx: #9a5a5a;
+    --code-bg: #0c0c0c;
+    --glow-a: #0a0a2a; --glow-b: #1a0a1a;
+    --grid: #181818; --axis: #222;
+    --sw-border: #333;
+    --header-bg: rgba(6,6,6,0.88);
+    --body-weight: 400;
+    --mantra-weight: 400;
+    color-scheme: dark;
+  }
+  /* ═══ LIGHT ═══ */
+  [data-theme="light"] {
+    --bg: #fafafa; --bg-el: #fff; --bg-sub: #f0f0f0;
+    --fg: #1a1a1a; --fg2: #444; --fg3: #666; --fg4: #888; --fg5: #aaa; --fg6: #ddd;
+    --border: #ddd; --border2: #eee;
+    --mark: #0a0a0a; --mark-inv: #fff;
+    --good-bg: #e8f5e8; --good-tx: #2a7a2a;
+    --bad-bg: #f5e8e8; --bad-tx: #7a2a2a;
+    --code-bg: #f5f5f5;
+    --glow-a: #dde0f8; --glow-b: #f0ddf0;
+    --grid: #e8e8e8; --axis: #ddd;
+    --sw-border: #ccc;
+    --header-bg: rgba(250,250,250,0.88);
+    --body-weight: 400;
+    --mantra-weight: 300;
+    color-scheme: light;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--fg); font-family: 'Inter', 'Noto Sans JP', 'Noto Sans SC', sans-serif; -webkit-font-smoothing: antialiased; transition: background 0.3s, color 0.3s; }
+
+  /* ═══ Floating Controls (always visible) ═══ */
+  .float-controls {
+    position: fixed; top: 12px; right: clamp(16px, 4vw, 40px); z-index: 101;
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 6px; border-radius: 12px;
+    background: var(--header-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  /* ═══ Floating Header (logo — scroll triggered) ═══ */
+  .float-header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center;
+    padding: 0 clamp(16px, 4vw, 40px); height: 52px;
+    background: var(--header-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    transform: translateY(-100%); opacity: 0;
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s;
+  }
+  .float-header.visible { transform: translateY(0); opacity: 1; }
+  .fh-left { display: flex; align-items: center; gap: 10px; }
+  .fh-logo { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 300; color: var(--fg); text-decoration: none; }
+  .fh-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--fg3);
+    padding: 5px 10px; border-radius: 8px; font-size: 12px; cursor: pointer;
+    font-family: inherit; transition: all 0.2s; line-height: 1;
+  }
+  .fh-btn:hover { border-color: var(--fg4); color: var(--fg2); }
+  .fh-btn.active { border-color: var(--fg3); color: var(--fg); background: var(--bg-sub); }
+  .fh-theme {
+    background: transparent; border: 1px solid var(--border); color: var(--fg3);
+    width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+    transition: all 0.2s;
+  }
+  .fh-theme:hover { border-color: var(--fg4); color: var(--fg2); }
+  .fh-sep { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
+
+  /* ═══ Layout ═══ */
+  .page { max-width: 1200px; margin: 0 auto; padding: clamp(40px,8vw,80px) clamp(20px,5vw,48px); }
+  .section { margin-bottom: clamp(80px,12vw,120px); }
+  .section-num { font-size: 12px; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; color: var(--fg4); margin-bottom: 8px; }
+  .section-title { font-size: clamp(24px,4vw,32px); font-weight: 500; letter-spacing: -0.5px; margin-bottom: clamp(32px,5vw,48px); }
+  .subsection { margin-bottom: clamp(48px,6vw,64px); }
+  .sub-label { font-size: 12px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; color: var(--fg3); margin-bottom: 24px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  p { font-size: 15px; line-height: 1.8; color: var(--fg2); max-width: 640px; }
+  .note { font-size: 13px; color: var(--fg3); line-height: 1.8; margin-top: 12px; }
+  code { font-family: 'Inter', monospace; font-size: 0.9em; background: var(--code-bg); padding: 2px 6px; border-radius: 4px; }
+
+  /* ═══ Grids ═══ */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
+
+  /* ═══ Cover ═══ */
+  .cover {
+    min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    position: relative; overflow: hidden; padding: 40px 20px;
+  }
+  .cover::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, var(--glow-a) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 50%, var(--glow-b) 0%, transparent 60%);
+    opacity: 0.5;
+  }
+  .cover > * { position: relative; z-index: 1; }
+  .cover-mark { margin-bottom: 32px; }
+  .cover-name { font-size: clamp(36px,8vw,56px); font-weight: 300; letter-spacing: -1px; }
+  .cover-sub { font-size: clamp(13px,2vw,16px); color: var(--fg2); margin-top: 16px; letter-spacing: 0.5px; }
+  .cover-guide { font-size: 12px; color: var(--fg4); margin-top: 40px; letter-spacing: 4px; text-transform: uppercase; }
+
+  /* ═══ Cards ═══ */
+  .card { background: var(--bg-el); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: background 0.3s, border-color 0.3s; }
+
+  /* ═══ Spec Table ═══ */
+  .spec { width: 100%; font-size: 13px; border-collapse: collapse; }
+  .spec td { padding: 10px 0; border-bottom: 1px solid var(--border2); vertical-align: top; }
+  .spec .k { color: var(--fg3); width: 160px; }
+  .spec .v { color: var(--fg2); }
+
+  /* ═══ Swatches & Gradients ═══ */
+  .swatch { height: 80px; border-radius: 12px; position: relative; overflow: hidden; }
+  .swatch-label { position: absolute; bottom: 8px; left: 12px; font-size: 12px; letter-spacing: 1px; }
+  .grad-card { border-radius: 16px; padding: clamp(32px,5vw,48px); display: flex; align-items: center; justify-content: center; min-height: 180px; position: relative; }
+  .grad-name { position: absolute; bottom: 10px; left: 14px; font-size: 12px; color: rgba(255,255,255,0.4); letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ═══ Type ═══ */
+  .type-row { margin-bottom: 24px; }
+  .type-sample { color: var(--fg); margin-bottom: 4px; }
+  .type-meta { font-size: 13px; color: var(--fg3); }
+
+  /* ═══ Do/Don't ═══ */
+  .do-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .do-card { border-radius: 12px; padding: 24px; text-align: center; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  .do-card.good { background: var(--good-bg); border: 1px solid color-mix(in srgb, var(--good-tx) 20%, transparent); }
+  .do-card.bad { background: var(--bad-bg); border: 1px solid color-mix(in srgb, var(--bad-tx) 20%, transparent); }
+  .do-label { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+  .do-card.good .do-label { color: var(--good-tx); }
+  .do-card.bad .do-label { color: var(--bad-tx); }
+  .do-desc { font-size: 13px; color: var(--fg3); }
+
+  /* ═══ Keywords ═══ */
+  .keyword-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+  .keyword { padding: 10px 20px; border: 1px solid var(--border); border-radius: 100px; font-size: 14px; color: var(--fg2); letter-spacing: 0.5px; transition: all 0.3s; }
+  .keyword:hover { border-color: var(--fg3); color: var(--fg); }
+  .keyword.primary { border-color: var(--fg2); color: var(--fg); font-weight: 600; }
+
+  /* ═══ Metaphor Code ═══ */
+  .metaphor-code {
+    font-family: 'Inter', monospace; font-size: clamp(14px,2vw,16px);
+    color: var(--fg3); padding: 28px 32px;
+    background: var(--code-bg); border-radius: 12px; border: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .code-line { line-height: 2; white-space: pre; }
+  .metaphor-code .hl { color: var(--fg); font-weight: 500; }
+  .metaphor-code .cm { color: var(--fg4); font-style: italic; }
+  .metaphor-code .kw { color: var(--fg2); }
+
+  /* ═══ Personality Spectrum ═══ */
+  .spectrum { display: flex; flex-direction: column; gap: 20px; }
+  .spectrum-row { display: flex; align-items: center; gap: 12px; }
+  .spectrum-label { font-size: 13px; color: var(--fg3); width: 80px; text-align: right; flex-shrink: 0; }
+  .spectrum-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; position: relative; }
+  .spectrum-fill { height: 100%; border-radius: 2px; background: var(--fg3); }
+  .spectrum-dot { width: 10px; height: 10px; background: var(--fg); border-radius: 50%; position: absolute; top: -3px; }
+  .spectrum-end { font-size: 13px; color: var(--fg3); width: 80px; flex-shrink: 0; }
+
+  /* ═══ Process Flow ═══ */
+  .flow { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .flow-step { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 24px 20px; min-width: 100px; }
+  .flow-icon { font-size: 28px; font-weight: 300; color: var(--fg); }
+  .flow-label { font-size: 13px; font-weight: 500; color: var(--fg2); }
+  .flow-sub { font-size: 12px; color: var(--fg3); text-align: center; }
+  .flow-arrow { font-size: 20px; color: var(--fg4); padding: 0 4px; }
+
+  /* ═══ SVG theme ═══ */
+  .mark-svg { stroke: var(--mark); transition: stroke 0.3s; }
+
+  /* ═══ Responsive ═══ */
+  @media (max-width:900px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .do-grid { grid-template-columns: 1fr; }
+    .span-2 { grid-column: span 1 !important; }
+  }
+  @media (max-width:480px) {
+    .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .flow-step { min-width: 70px; padding: 16px 6px; }
+    .flow-icon { font-size: 22px; }
+    .flow-arrow { font-size: 16px; }
+    .metaphor-code { font-size: 13px; padding: 20px; }
+    .keyword { font-size: 13px; padding: 8px 14px; }
+    .spectrum-label, .spectrum-end { width: 60px; font-size: 12px; }
+    .fh-btn { padding: 4px 7px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ FLOATING CONTROLS (always visible) ═══ -->
+<div class="float-controls" id="floatControls">
+  <button class="fh-btn active" data-lang="ko" onclick="setLang('ko')">KO</button>
+  <button class="fh-btn" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="fh-btn" data-lang="ja" onclick="setLang('ja')">JA</button>
+  <button class="fh-btn" data-lang="zh" onclick="setLang('zh')">ZH</button>
+  <div class="fh-sep"></div>
+  <button class="fh-theme" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme"></button>
+</div>
+
+<!-- ═══ FLOATING HEADER (logo — scroll triggered) ═══ -->
+<header class="float-header" id="floatHeader">
+  <div class="fh-left">
+    <a href="#" class="fh-logo" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;">
+      <svg width="20" height="20" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></svg>
+      <span>interfn</span>
+    </a>
+  </div>
+</header>
+
+<!-- ═══ COVER ═══ -->
+<div class="cover" id="coverSection">
+  <div class="cover-mark">
+    <svg width="120" height="120" viewBox="0 0 200 200">
+      <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/>
+      <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="cover-name">interfn</div>
+  <div class="cover-sub" data-i18n="cover.sub"></div>
+  <div class="cover-guide">Brand Guide v1.0</div>
+</div>
+
+<div class="page">
+
+<!-- ═══ 01. BRAND CONCEPT ═══ -->
+<div class="section">
+  <div class="section-num">01</div>
+  <div class="section-title" data-i18n="s1.title"></div>
+
+  <!-- 1.1 Core Story -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.1.label"></div>
+    <div class="grid-2">
+      <div>
+        <p style="color:var(--fg);font-size:clamp(18px,2.5vw,22px);font-weight:400;line-height:2;margin-bottom:24px;max-width:100%;" data-i18n="s1.1.hero"></p>
+        <p data-i18n="s1.1.desc"></p>
+      </div>
+      <div>
+        <table class="spec">
+          <tr><td class="k">Name</td><td class="v">interfn</td></tr>
+          <tr><td class="k">Reading</td><td class="v" data-i18n="s1.1.reading"></td></tr>
+          <tr><td class="k">Domain</td><td class="v">interfn.com</td></tr>
+          <tr><td class="k">Meaning</td><td class="v">interface + function</td></tr>
+          <tr><td class="k">Tagline</td><td class="v" data-i18n="s1.1.tagline"></td></tr>
+          <tr><td class="k">Core Identity</td><td class="v">colorless, callable, transformative</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.2 Brand as Code -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.2.label"></div>
+    <div class="metaphor-code"><div class="code-line"><span class="cm" data-i18n="s1.2.cm1"></span></div><div class="code-line"><span class="cm" data-i18n="s1.2.cm2"></span></div><div class="code-line">&nbsp;</div><div class="code-line"><span class="kw">interface</span> <span class="hl">interfn</span> {</div><div class="code-line">  <span class="kw">fn</span> <span class="hl">call</span>(input: Problem) → Output;</div><div class="code-line">}</div><div class="code-line">&nbsp;</div><div class="code-line"><span class="cm" data-i18n="s1.2.cm3"></span></div><div class="code-line"><span class="cm" data-i18n="s1.2.cm4"></span></div><div class="code-line">&nbsp;</div><div class="code-line"><span class="kw">impl</span> <span class="hl">interfn</span> {</div><div class="code-line">  <span class="kw">fn</span> <span class="hl">call</span>(input) → { <span class="hl">transform(input)</span> }</div><div class="code-line">}</div></div>
+    <div class="note" style="text-align:center;" data-i18n="s1.2.note"></div>
+  </div>
+
+  <!-- 1.3 Flow -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.3.label"></div>
+    <div class="card" style="padding:clamp(24px,4vw,48px);">
+      <div class="flow">
+        <div class="flow-step"><div class="flow-icon" style="opacity:0.3;">{ }</div><div class="flow-label">Void</div><div class="flow-sub" data-i18n="s1.3.void"></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="flow-icon">def</div><div class="flow-label">Define</div><div class="flow-sub" data-i18n="s1.3.define"></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="flow-icon">fn()</div><div class="flow-label">Call</div><div class="flow-sub" data-i18n="s1.3.call"></div></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step"><div class="flow-icon" style="font-weight:500;">out</div><div class="flow-label">Output</div><div class="flow-sub" data-i18n="s1.3.output"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.4 Keywords -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.4.label"></div>
+    <div class="keyword-grid">
+      <span class="keyword primary">interface</span><span class="keyword primary">function</span><span class="keyword primary">void</span>
+      <span class="keyword">callable</span><span class="keyword">transform</span><span class="keyword">abstract</span>
+      <span class="keyword">define</span><span class="keyword">output</span><span class="keyword">minimal</span>
+      <span class="keyword">colorless</span><span class="keyword">geometric</span><span class="keyword">fibonacci</span>
+    </div>
+  </div>
+
+  <!-- 1.5 Personality -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.5.label"></div>
+    <div class="card">
+      <div class="spectrum">
+        <div class="spectrum-row"><div class="spectrum-label" data-i18n="s1.5.a1"></div><div class="spectrum-bar"><div class="spectrum-fill" style="width:8%"></div><div class="spectrum-dot" style="left:8%"></div></div><div class="spectrum-end" data-i18n="s1.5.b1"></div></div>
+        <div class="spectrum-row"><div class="spectrum-label" data-i18n="s1.5.a2"></div><div class="spectrum-bar"><div class="spectrum-fill" style="width:12%"></div><div class="spectrum-dot" style="left:12%"></div></div><div class="spectrum-end" data-i18n="s1.5.b2"></div></div>
+        <div class="spectrum-row"><div class="spectrum-label" data-i18n="s1.5.a3"></div><div class="spectrum-bar"><div class="spectrum-fill" style="width:15%"></div><div class="spectrum-dot" style="left:15%"></div></div><div class="spectrum-end" data-i18n="s1.5.b3"></div></div>
+        <div class="spectrum-row"><div class="spectrum-label" data-i18n="s1.5.a4"></div><div class="spectrum-bar"><div class="spectrum-fill" style="width:5%"></div><div class="spectrum-dot" style="left:5%"></div></div><div class="spectrum-end" data-i18n="s1.5.b4"></div></div>
+        <div class="spectrum-row"><div class="spectrum-label" data-i18n="s1.5.a5"></div><div class="spectrum-bar"><div class="spectrum-fill" style="width:90%"></div><div class="spectrum-dot" style="left:90%"></div></div><div class="spectrum-end" data-i18n="s1.5.b5"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.6 Naming Expansion -->
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s1.6.label"></div>
+    <div class="grid-3">
+      <div class="card" style="text-align:center;"><div style="font-size:12px;color:var(--fg4);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">inter-</div><div style="font-size:13px;color:var(--fg2);line-height:2;">interface<br>interact<br>interpret<br>interconnect<br>international</div></div>
+      <div class="card" style="text-align:center;"><div style="font-size:12px;color:var(--fg4);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">fn</div><div style="font-size:13px;color:var(--fg2);line-height:2;">function<br>fun<br>fin<br>foundation</div></div>
+      <div class="card" style="text-align:center;"><div style="font-size:12px;color:var(--fg4);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">Pitch</div><div style="font-size:13px;color:var(--fg2);line-height:2;font-style:italic;" data-i18n="s1.6.pitch"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 02. LOGO ═══ -->
+<div class="section">
+  <div class="section-num">02</div>
+  <div class="section-title" data-i18n="s2.title"></div>
+
+  <div class="subsection">
+    <div class="sub-label">2.1 — Symbol Mark: Orbit Pair</div>
+    <div class="grid-2">
+      <div class="card" style="display:flex;align-items:center;justify-content:center;min-height:260px;">
+        <svg width="180" height="180" viewBox="0 0 200 200">
+          <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <p style="margin-bottom:24px;" data-i18n="s2.1.desc"></p>
+        <table class="spec">
+          <tr><td class="k">Construction</td><td class="v">Fibonacci ratio (5, 8)</td></tr>
+          <tr><td class="k">R outer / inner</td><td class="v">64px (8u) / 40px (5u)</td></tr>
+          <tr><td class="k">Stroke outer / inner</td><td class="v">6px / 8px</td></tr>
+          <tr><td class="k">Stroke ratio</td><td class="v">3:4</td></tr>
+          <tr><td class="k">Visual weight</td><td class="v">384 : 320 (outer slightly heavier for legibility)</td></tr>
+          <tr><td class="k">Arc / Gap</td><td class="v">270° / 90° · 180° offset</td></tr>
+          <tr><td class="k">Grid unit</td><td class="v">1u = 8px · round cap</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.2 Construction -->
+  <div class="subsection">
+    <div class="sub-label">2.2 — Geometric Construction</div>
+    <div class="card" style="display:flex;align-items:center;justify-content:center;padding:clamp(24px,4vw,48px);overflow-x:auto;">
+      <svg width="400" height="400" viewBox="0 0 200 200" style="max-width:100%;height:auto;">
+        <defs><pattern id="gu" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M 8 0 L 0 0 0 8" fill="none" stroke="var(--grid)" stroke-width="0.25"/></pattern></defs>
+        <rect width="200" height="200" fill="url(#gu)"/>
+        <line x1="100" y1="0" x2="100" y2="200" stroke="var(--axis)" stroke-width="0.5"/>
+        <line x1="0" y1="100" x2="200" y2="100" stroke="var(--axis)" stroke-width="0.5"/>
+        <line x1="0" y1="0" x2="200" y2="200" stroke="var(--grid)" stroke-width="0.3" stroke-dasharray="2,6"/>
+        <line x1="200" y1="0" x2="0" y2="200" stroke="var(--grid)" stroke-width="0.3" stroke-dasharray="2,6"/>
+        <circle cx="100" cy="100" r="64" fill="none" stroke="#ff444444" stroke-width="0.5" stroke-dasharray="3,5"/>
+        <circle cx="100" cy="100" r="40" fill="none" stroke="#4488ff44" stroke-width="0.5" stroke-dasharray="3,5"/>
+        <circle cx="100" cy="100" r="80" fill="none" stroke="#44ff4433" stroke-width="0.5" stroke-dasharray="2,6"/>
+        <path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/>
+        <path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="100" cy="36" r="2.5" fill="#ff4444" opacity="0.6"/><circle cx="164" cy="100" r="2.5" fill="#ff4444" opacity="0.6"/>
+        <circle cx="100" cy="140" r="2.5" fill="#4488ff" opacity="0.6"/><circle cx="60" cy="100" r="2.5" fill="#4488ff" opacity="0.6"/>
+        <circle cx="100" cy="100" r="1.5" fill="#44ff44" opacity="0.5"/>
+        <text x="48" y="18" font-size="6" fill="#ff4444" opacity="0.7" font-family="Inter">P1(100,36)</text>
+        <text x="166" y="96" font-size="6" fill="#ff4444" opacity="0.7" font-family="Inter">P2(164,100)</text>
+        <text x="106" y="146" font-size="6" fill="#4488ff" opacity="0.7" font-family="Inter">P3(100,140)</text>
+        <text x="20" y="112" font-size="6" fill="#4488ff" opacity="0.7" font-family="Inter">P4(60,100)</text>
+      </svg>
+    </div>
+    <div class="note" style="text-align:center;margin-top:16px;overflow-x:auto;white-space:nowrap;">
+      outer: <code style="color:#ff6666">M 100 36 A 64 64 0 1 0 164 100</code> &nbsp;|&nbsp;
+      inner: <code style="color:#6688ff">M 100 140 A 40 40 0 1 0 60 100</code>
+    </div>
+  </div>
+
+  <!-- 2.3 Fibonacci -->
+  <div class="subsection">
+    <div class="sub-label">2.3 — Fibonacci Alignment</div>
+    <div class="card"><div style="display:flex;gap:clamp(12px,2vw,24px);align-items:center;flex-wrap:wrap;justify-content:center;">
+      <div style="text-align:center;opacity:.25"><div style="width:8px;height:8px;background:var(--fg);border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:var(--fg3)">1</div></div>
+      <div style="text-align:center;opacity:.25"><div style="width:8px;height:8px;background:var(--fg);border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:var(--fg3)">1</div></div>
+      <div style="text-align:center;opacity:.25"><div style="width:16px;height:16px;background:var(--fg);border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:var(--fg3)">2</div></div>
+      <div style="text-align:center"><div style="width:24px;height:24px;background:#ff444418;border:1px solid #ff444433;border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:#ff6666">3</div><div style="font-size:12px;color:#ff444466;margin-top:4px">gap</div></div>
+      <div style="text-align:center"><div style="width:40px;height:40px;background:#ff884418;border:1px solid #ff884433;border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:#ff8844">5→6</div><div style="font-size:12px;color:#ff884466;margin-top:4px">s outer (adjusted)</div></div>
+      <div style="text-align:center"><div style="width:64px;height:64px;background:#4488ff18;border:1px solid #4488ff33;border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:#4488ff">8</div><div style="font-size:12px;color:#4488ff66;margin-top:4px">s inner · 1u</div></div>
+      <div style="text-align:center"><div style="width:80px;height:80px;background:#44ff4410;border:1px solid #44ff4422;border-radius:2px;margin:0 auto 8px"></div><div style="font-size:18px;color:#44ff44">13</div><div style="font-size:12px;color:#44ff4466;margin-top:4px">safe zone</div></div>
+    </div></div>
+  </div>
+
+  <!-- 2.4 Lockup -->
+  <div class="subsection">
+    <div class="sub-label">2.4 — Lockup</div>
+    <div style="display:flex;flex-direction:column;gap:24px;align-items:center;">
+      <div class="card" style="padding:36px clamp(24px,4vw,56px);display:flex;align-items:center;justify-content:center;">
+        <svg width="320" height="52" viewBox="0 0 320 52" style="max-width:100%;height:auto;">
+          <g transform="translate(0,0) scale(0.3)"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></g>
+          <line x1="54" y1="8" x2="54" y2="44" stroke="var(--border)" stroke-width="0.5"/>
+          <text x="66" y="34" font-family="Inter,sans-serif" font-weight="300" font-size="26" fill="var(--fg)" letter-spacing="-0.5">interfn</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.5 Sizes -->
+  <div class="subsection">
+    <div class="sub-label">2.5 — Minimum Size</div>
+    <div style="display:flex;gap:clamp(16px,3vw,32px);align-items:flex-end;justify-content:center;flex-wrap:wrap;">
+      <div style="text-align:center"><svg width="16" height="16" viewBox="0 0 124 124" style="background:var(--mark-inv);border-radius:3px;"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="var(--mark)" stroke-width="9" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="var(--mark)" stroke-width="11" stroke-linecap="round"/></svg><div style="font-size:12px;color:var(--fg4);margin-top:6px">16 (φ crop)</div></div>
+      <div style="text-align:center"><svg width="24" height="24" viewBox="0 0 124 124" style="background:var(--mark-inv);border-radius:4px;"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="var(--mark)" stroke-width="8" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="var(--mark)" stroke-width="10" stroke-linecap="round"/></svg><div style="font-size:12px;color:var(--fg4);margin-top:6px">24 (φ crop)</div></div>
+      <div style="text-align:center"><svg width="48" height="48" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></svg><div style="font-size:12px;color:var(--fg4);margin-top:6px">48 (full)</div></div>
+      <div style="text-align:center"><svg width="96" height="96" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></svg><div style="font-size:12px;color:var(--fg4);margin-top:6px">96 (full)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 03. COLOR ═══ -->
+<div class="section">
+  <div class="section-num">03</div>
+  <div class="section-title" data-i18n="s3.title"></div>
+
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s3.1.label"></div>
+    <p style="margin-bottom:24px;" data-i18n="s3.1.desc"></p>
+    <div class="grid-4">
+      <div><div class="swatch" style="background:#fff;border:1px solid var(--sw-border)"><span class="swatch-label" style="color:rgba(0,0,0,.4)">#FFF</span></div><div style="font-size:12px;color:var(--fg3);margin-top:6px">White</div></div>
+      <div><div class="swatch" style="background:#e8e8e8"><span class="swatch-label" style="color:rgba(0,0,0,.3)">#E8E8E8</span></div><div style="font-size:12px;color:var(--fg3);margin-top:6px">Light Gray</div></div>
+      <div><div class="swatch" style="background:#666"><span class="swatch-label" style="color:rgba(255,255,255,.5)">#666</span></div><div style="font-size:12px;color:var(--fg3);margin-top:6px">Muted</div></div>
+      <div><div class="swatch" style="background:#0a0a0a;border:1px solid var(--sw-border)"><span class="swatch-label" style="color:rgba(255,255,255,.4)">#0A0A0A</span></div><div style="font-size:12px;color:var(--fg3);margin-top:6px">Black</div></div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s3.2.label"></div>
+    <div class="card" style="text-align:center;padding:clamp(24px,4vw,48px);">
+      <p style="font-size:clamp(16px,2.5vw,22px);font-weight:400;color:var(--fg);max-width:100%;margin:0 auto;" data-i18n="s3.2.quote"></p>
+      <p style="max-width:100%;margin:16px auto 0;text-align:center;" data-i18n="s3.2.desc"></p>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s3.3.label"></div>
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="grad-card" style="background:linear-gradient(135deg,#0a1628,#1a237e,#4a148c)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">cold</div></div>
+      <div class="grad-card" style="background:linear-gradient(135deg,#1a0a0a,#8b1a1a,#e65100)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">warm</div></div>
+      <div class="grad-card" style="background:linear-gradient(135deg,#0d1b2a,#1b2a4a,#4a1942,#7b1a3a,#c2442d)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">aurora</div></div>
+      <div class="grad-card" style="background:linear-gradient(135deg,#000,#0a0a1e,#1a0a2e,#0a1a1e)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">deep space</div></div>
+      <div class="grad-card" style="background:linear-gradient(135deg,#0a1a0a,#1a3a2a,#2a5a3a,#1a4a4a)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">forest</div></div>
+      <div class="grad-card" style="background:linear-gradient(135deg,#1a0a2a,#3a1a4a,#7a2a5a,#cc6633,#e8a830)"><svg width="64" height="64" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div class="grad-name">dawn</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 04. TYPOGRAPHY ═══ -->
+<div class="section">
+  <div class="section-num">04</div>
+  <div class="section-title" data-i18n="s4.title"></div>
+  <div class="subsection">
+    <div class="sub-label">4.1 — Inter</div>
+    <p style="margin-bottom:32px;" data-i18n="s4.1.desc"></p>
+    <div class="type-row"><div class="type-sample" style="font-size:clamp(32px,6vw,48px);font-weight:300;">interfn</div><div class="type-meta">Light 300 — Wordmark</div></div>
+    <div class="type-row"><div class="type-sample" style="font-size:clamp(24px,4vw,32px);font-weight:500;" data-i18n="s4.headline"></div><div class="type-meta">Medium 500 — Headline</div></div>
+    <div class="type-row"><div class="type-sample" style="font-size:clamp(15px,2vw,18px);font-weight:400;" data-i18n="s4.body"></div><div class="type-meta">Regular 400 — Body</div></div>
+    <div class="type-row"><div class="type-sample" style="font-size:13px;font-weight:400;letter-spacing:2px;text-transform:uppercase;color:var(--fg2);">brand guide v1.0</div><div class="type-meta">Regular 400 + tracking — Caption</div></div>
+  </div>
+</div>
+
+<!-- ═══ 05. TONE & VOICE ═══ -->
+<div class="section">
+  <div class="section-num">05</div>
+  <div class="section-title" data-i18n="s5.title"></div>
+  <div class="grid-2">
+    <div>
+      <table class="spec">
+        <tr><td class="k" data-i18n="s5.k1"></td><td class="v" data-i18n="s5.v1"></td></tr>
+        <tr><td class="k" data-i18n="s5.k2"></td><td class="v" data-i18n="s5.v2"></td></tr>
+        <tr><td class="k" data-i18n="s5.k3"></td><td class="v" data-i18n="s5.v3"></td></tr>
+      </table>
+    </div>
+    <div>
+      <p style="color:var(--fg);font-weight:var(--mantra-weight);font-size:clamp(15px,2vw,18px);line-height:2.2;" data-i18n="s5.mantra"></p>
+    </div>
+  </div>
+  <div style="margin-top:48px;">
+    <div class="do-grid">
+      <div class="do-card good"><div class="do-label">Do</div><div style="font-size:14px;color:var(--fg);" data-i18n="s5.do1"></div><div class="do-desc" data-i18n="s5.do1d"></div></div>
+      <div class="do-card bad"><div class="do-label">Don't</div><div style="font-size:14px;color:var(--fg);" data-i18n="s5.dont1"></div><div class="do-desc" data-i18n="s5.dont1d"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 06. USAGE ═══ -->
+<div class="section">
+  <div class="section-num">06</div>
+  <div class="section-title" data-i18n="s6.title"></div>
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s6.1.label"></div>
+    <div class="do-grid">
+      <div class="do-card good"><svg width="56" height="56" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></svg><div class="do-label">Do</div><div class="do-desc" data-i18n="s6.do1"></div></div>
+      <div class="do-card bad"><svg width="56" height="36" viewBox="0 0 200 200" preserveAspectRatio="none"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round" opacity=".4"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round" opacity=".4"/></svg><div class="do-label">Don't</div><div class="do-desc" data-i18n="s6.dont1"></div></div>
+    </div>
+  </div>
+  <div class="subsection">
+    <div class="sub-label" data-i18n="s6.2.label"></div>
+    <div class="grid-2">
+      <div class="card" style="padding:0;overflow:hidden"><div style="background:linear-gradient(135deg,#0d1b2a,#1b2a4a,#4a1942);padding:clamp(20px,3vw,32px);min-height:140px;display:flex;flex-direction:column;justify-content:space-between;"><svg width="28" height="28" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div style="font-size:14px;font-weight:300;color:#fff;margin-top:16px;">interfn</div></div><div style="background:var(--bg-el);padding:12px 20px"><div style="font-size:12px;color:var(--fg4);letter-spacing:1px">BUSINESS CARD</div></div></div>
+      <div class="card" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap"><div style="width:56px;height:56px;background:linear-gradient(135deg,#000,#0a0a1e,#1a0a2e);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="32" height="32" viewBox="0 0 200 200"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/></svg></div><div><div style="font-size:14px;font-weight:400">interfn</div><div style="font-size:13px;color:var(--fg3)" data-i18n="cover.sub"></div></div></div>
+      <div class="card span-2" style="padding:0;overflow:hidden;grid-column:span 2"><div style="background:linear-gradient(135deg,#1a0a2a,#3a1a4a,#7a2a5a,#cc6633,#e8a830);padding:clamp(40px,6vw,72px);text-align:center"><svg width="56" height="56" viewBox="0 0 200 200" style="margin-bottom:20px"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/></svg><div style="font-size:clamp(24px,5vw,36px);font-weight:300;color:#fff;margin-bottom:8px">interfn</div><div style="font-size:clamp(11px,2vw,14px);color:rgba(255,255,255,.6)" data-i18n="cover.sub"></div></div><div style="background:var(--bg-el);padding:12px 20px"><div style="font-size:12px;color:var(--fg4);letter-spacing:1px">HERO SECTION</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 07. ASSETS ═══ -->
+<div class="section">
+  <div class="section-num">07</div>
+  <div class="section-title" data-i18n="s7.title"></div>
+  <table class="spec" style="max-width:600px;">
+    <tr><td class="k">Mark SVG</td><td class="v">viewBox="0 0 200 200" · 2 paths · stroke only</td></tr>
+    <tr><td class="k">Mark PNG</td><td class="v">512, 256, 128, 64, 32, 16px</td></tr>
+    <tr><td class="k">Favicon</td><td class="v">32×32, 16×16 · golden crop viewBox "0 0 124 124" (200/φ)</td></tr>
+    <tr><td class="k">Favicon crop</td><td class="v">upper-left viewport · white bg · stroke boosted (outer 8, inner 10)</td></tr>
+    <tr><td class="k">OG Image</td><td class="v">1200×630 · gradient + white mark</td></tr>
+    <tr><td class="k">Font</td><td class="v">Inter variable (Google Fonts)</td></tr>
+    <tr><td class="k">Wordmark</td><td class="v">weight 300 / tracking -0.5px</td></tr>
+    <tr><td class="k">Min mark size</td><td class="v">32px (below: use stroke-boosted variant)</td></tr>
+  </table>
+  <div style="margin-top:32px">
+    <div class="sub-label">SVG Source</div>
+    <div class="card" style="font-family:monospace;font-size:clamp(13px,1.5vw,15px);color:var(--fg2);line-height:2;white-space:pre;overflow-x:auto">&lt;svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;path d="M 100 36 A 64 64 0 1 0 164 100"
+        fill="none" stroke="currentColor"
+        stroke-width="6" stroke-linecap="round"/&gt;
+  &lt;path d="M 100 140 A 40 40 0 1 0 60 100"
+        fill="none" stroke="currentColor"
+        stroke-width="8" stroke-linecap="round"/&gt;
+&lt;/svg&gt;</div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div style="text-align:center;padding:80px 0 40px;border-top:1px solid var(--border);">
+  <svg width="32" height="32" viewBox="0 0 200 200" style="margin-bottom:12px;opacity:.2"><path d="M 100 36 A 64 64 0 1 0 164 100" fill="none" class="mark-svg" stroke-width="6" stroke-linecap="round"/><path d="M 100 140 A 40 40 0 1 0 60 100" fill="none" class="mark-svg" stroke-width="8" stroke-linecap="round"/></svg>
+  <div style="font-size:12px;color:var(--fg5);letter-spacing:2px;">interfn Brand Guide v1.0 — 2026.03</div>
+</div>
+
+</div>
+
+<script>
+/* ═══ i18n Data ═══ */
+const i18n = {
+  ko: {
+    "cover.sub": "하나의 인터페이스. 무한한 구현.",
+    "s1.title": "브랜드 컨셉",
+    "s1.1.label": "1.1 — 핵심 이야기",
+    "s1.1.hero": "인터페이스 같은 존재.<br>그 자체로는 비어있지만,<br>구현을 정의하면 결과가 나온다.",
+    "s1.1.desc": "interfn은 interface와 function의 합성어다. 비어있지만 호출 가능하고, 정의하면 변환이 일어나는 — 개발자의 사고방식을 브랜드로 표현한다.",
+    "s1.1.reading": "인터펀",
+    "s1.1.tagline": "하나의 인터페이스. 무한한 구현.",
+    "s1.2.label": "1.2 — 코드로 보는 브랜드",
+    "s1.2.cm1": "// 아직 아무것도 없다.",
+    "s1.2.cm2": "// 하지만 계약이 있다.",
+    "s1.2.cm3": "// 구현을 정의하는 순간,",
+    "s1.2.cm4": "// 색이 생긴다.",
+    "s1.2.note": "비어있지만 호출 가능하다. 정의하면 변환이 일어난다.",
+    "s1.3.label": "1.3 — 변환 흐름",
+    "s1.3.void": "비어있는 인터페이스",
+    "s1.3.define": "구현을 정의한다",
+    "s1.3.call": "함수를 호출한다",
+    "s1.3.output": "결과가 나온다",
+    "s1.4.label": "1.4 — 브랜드 키워드",
+    "s1.5.label": "1.5 — 브랜드 성격",
+    "s1.5.a1": "화려한", "s1.5.b1": "미니멀",
+    "s1.5.a2": "감성적", "s1.5.b2": "논리적",
+    "s1.5.a3": "구체적", "s1.5.b3": "추상적",
+    "s1.5.a4": "시끄러운", "s1.5.b4": "조용한",
+    "s1.5.a5": "고정된", "s1.5.b5": "적응하는",
+    "s1.6.label": "1.6 — 네이밍 확장",
+    "s1.6.pitch": "\"하나의 인터페이스.<br>무한한 구현.\"",
+    "s2.title": "로고",
+    "s2.1.desc": "두 개의 궤도(orbit)가 하나의 중심을 공유하되 닫히지 않는 형태. 바깥 궤도는 가볍게(interface), 안쪽 궤도는 묵직하게(function). 시각적 무게는 정확히 동일하다.",
+    "s3.title": "컬러 시스템",
+    "s3.1.label": "3.1 — 핵심 팔레트",
+    "s3.1.desc": "기본은 모노크롬. 맥락에 따라 단색 변형을 허용한다. 인터페이스는 자체 색이 없다.",
+    "s3.2.label": "3.2 — 컬러 원칙",
+    "s3.2.quote": "\"마크의 형태는 불변. 어떤 색이든 동작한다.\"",
+    "s3.2.desc": "인터페이스는 자체 색이 없다 — 어떤 색이 와도 마크는 그대로 기능한다. 이것이 interfn의 컬러 철학이다.",
+    "s3.3.label": "3.3 — 그라데이션 팔레트",
+    "s4.title": "타이포그래피",
+    "s4.1.desc": "모든 텍스트에 Inter를 사용한다. 하나의 서체로 통일하여 인터페이스의 일관성을 표현한다.",
+    "s4.headline": "당신과 기술 사이의 접점에서",
+    "s4.body": "인터페이스 같은 존재. 그 자체로는 비어있지만, 구현을 정의하면 결과가 나온다.",
+    "s5.title": "톤 & 보이스",
+    "s5.k1": "성격", "s5.v1": "조용하지만 확실한",
+    "s5.k2": "말투", "s5.v2": "짧고, 직접적이고, 군더더기 없는",
+    "s5.k3": "비유", "s5.v3": "코드, 수학, 시스템",
+    "s5.mantra": "많이 말하지 않는다.<br>필요한 것만 말한다.<br>결과로 보여준다.",
+    "s5.do1": "\"정의하면 실행된다.\"", "s5.do1d": "짧고 확신에 찬 문장",
+    "s5.dont1": "\"저희는 최선을 다해 여러분의 니즈에 맞는 솔루션을 제공하겠습니다!\"", "s5.dont1d": "과잉 약속, 감정적 표현",
+    "s6.title": "사용법",
+    "s6.1.label": "6.1 — 로고 규칙",
+    "s6.do1": "충분한 여백, 원본 비율", "s6.dont1": "비율 변형",
+    "s6.2.label": "6.2 — 적용 예시",
+    "s7.title": "에셋",
+  },
+  en: {
+    "cover.sub": "One interface. Infinite implementations.",
+    "s1.title": "Brand Concept",
+    "s1.1.label": "1.1 — Core Story",
+    "s1.1.hero": "An existence like an interface.<br>Empty on its own,<br>but define an implementation — and results emerge.",
+    "s1.1.desc": "interfn is a portmanteau of interface and function. Empty yet callable, transformative once defined — it embodies the developer's mindset as a brand.",
+    "s1.1.reading": "in-ter-fun",
+    "s1.1.tagline": "One interface. Infinite implementations.",
+    "s1.2.label": "1.2 — Brand as Code",
+    "s1.2.cm1": "// nothing here yet.",
+    "s1.2.cm2": "// but there is a contract.",
+    "s1.2.cm3": "// the moment you define it,",
+    "s1.2.cm4": "// color emerges.",
+    "s1.2.note": "Empty yet callable. Define it, and transformation occurs.",
+    "s1.3.label": "1.3 — Transformation Flow",
+    "s1.3.void": "Empty interface",
+    "s1.3.define": "Define implementation",
+    "s1.3.call": "Invoke the function",
+    "s1.3.output": "Results emerge",
+    "s1.4.label": "1.4 — Brand Keywords",
+    "s1.5.label": "1.5 — Brand Personality",
+    "s1.5.a1": "Ornate", "s1.5.b1": "Minimal",
+    "s1.5.a2": "Emotional", "s1.5.b2": "Logical",
+    "s1.5.a3": "Concrete", "s1.5.b3": "Abstract",
+    "s1.5.a4": "Loud", "s1.5.b4": "Quiet",
+    "s1.5.a5": "Rigid", "s1.5.b5": "Adaptive",
+    "s1.6.label": "1.6 — Naming Expansion",
+    "s1.6.pitch": "\"One interface.<br>Infinite implementations.\"",
+    "s2.title": "Logo",
+    "s2.1.desc": "Two orbits sharing a single center, never closing. The outer orbit is light (interface), the inner orbit is heavy (function). Their visual weights are exactly equal.",
+    "s3.title": "Color System",
+    "s3.1.label": "3.1 — Core Palette",
+    "s3.1.desc": "Mono by default. Single-color variations allowed in context. An interface has no color of its own.",
+    "s3.2.label": "3.2 — Color Principle",
+    "s3.2.quote": "\"The shape stays. Any color works.\"",
+    "s3.2.desc": "An interface has no color of its own — any color works, and the mark stays the same. This is the color philosophy of interfn.",
+    "s3.3.label": "3.3 — Gradient Palettes",
+    "s4.title": "Typography",
+    "s4.1.desc": "Inter is used for all text. A single typeface unified to express the consistency of an interface.",
+    "s4.headline": "At the interface between you and technology",
+    "s4.body": "An existence like an interface. Empty on its own, but define an implementation and results emerge.",
+    "s5.title": "Tone & Voice",
+    "s5.k1": "Character", "s5.v1": "Quiet but certain",
+    "s5.k2": "Speech", "s5.v2": "Short, direct, no filler",
+    "s5.k3": "Metaphors", "s5.v3": "Code, math, systems",
+    "s5.mantra": "Doesn't say much.<br>Says only what's needed.<br>Shows through results.",
+    "s5.do1": "\"Define it, and it runs.\"", "s5.do1d": "Short, confident statement",
+    "s5.dont1": "\"We'll do our best to deliver solutions tailored to your needs!\"", "s5.dont1d": "Over-promising, emotional",
+    "s6.title": "Usage",
+    "s6.1.label": "6.1 — Logo Rules",
+    "s6.do1": "Clear space, original ratio", "s6.dont1": "Distorted ratio",
+    "s6.2.label": "6.2 — Application",
+    "s7.title": "Assets",
+  },
+  ja: {
+    "cover.sub": "ひとつのインターフェース。無限の実装。",
+    "s1.title": "ブランドコンセプト",
+    "s1.1.label": "1.1 — コアストーリー",
+    "s1.1.hero": "インターフェースのような存在。<br>それ自体は空だが、<br>実装を定義すれば結果が生まれる。",
+    "s1.1.desc": "interfnはinterfaceとfunctionの合成語だ。空でありながら呼び出し可能で、定義すれば変換が起きる——開発者の思考をブランドで表現する。",
+    "s1.1.reading": "インターファン",
+    "s1.1.tagline": "ひとつのインターフェース。無限の実装。",
+    "s1.2.label": "1.2 — コードで見るブランド",
+    "s1.2.cm1": "// まだ何もない。",
+    "s1.2.cm2": "// しかし契約がある。",
+    "s1.2.cm3": "// 定義した瞬間、",
+    "s1.2.cm4": "// 色が生まれる。",
+    "s1.2.note": "空でありながら呼び出し可能。定義すれば変換が起きる。",
+    "s1.3.label": "1.3 — 変換フロー",
+    "s1.3.void": "空のインターフェース",
+    "s1.3.define": "実装を定義する",
+    "s1.3.call": "関数を呼び出す",
+    "s1.3.output": "結果が生まれる",
+    "s1.4.label": "1.4 — キーワード",
+    "s1.5.label": "1.5 — ブランドパーソナリティ",
+    "s1.5.a1": "華やか", "s1.5.b1": "ミニマル",
+    "s1.5.a2": "感性的", "s1.5.b2": "論理的",
+    "s1.5.a3": "具体的", "s1.5.b3": "抽象的",
+    "s1.5.a4": "騒がしい", "s1.5.b4": "静か",
+    "s1.5.a5": "固定的", "s1.5.b5": "適応的",
+    "s1.6.label": "1.6 — ネーミング展開",
+    "s1.6.pitch": "\"ひとつのインターフェース。<br>無限の実装。\"",
+    "s2.title": "ロゴ",
+    "s2.1.desc": "2つの軌道がひとつの中心を共有し、閉じない形。外側は軽く(interface)、内側は重く(function)。視覚的な重さは完全に同一だ。",
+    "s3.title": "カラーシステム",
+    "s3.1.label": "3.1 — コアパレット",
+    "s3.1.desc": "基本はモノクローム。文脈に応じて単色バリエーションを許容する。インターフェースには固有の色がない。",
+    "s3.2.label": "3.2 — カラー原則",
+    "s3.2.quote": "「形は変わらない。どんな色でも機能する。」",
+    "s3.2.desc": "インターフェースには固有の色がない——どんな色が来てもマークはそのまま機能する。これがinterfnのカラー哲学だ。",
+    "s3.3.label": "3.3 — グラデーション",
+    "s4.title": "タイポグラフィ",
+    "s4.1.desc": "すべてのテキストにInterを使用する。単一書体で統一し、インターフェースの一貫性を表現する。",
+    "s4.headline": "あなたと技術の接点で",
+    "s4.body": "インターフェースのような存在。それ自体は空だが、実装を定義すれば結果が生まれる。",
+    "s5.title": "トーン＆ボイス",
+    "s5.k1": "性格", "s5.v1": "静かだが確実",
+    "s5.k2": "話し方", "s5.v2": "短く、直接的で、無駄がない",
+    "s5.k3": "比喩", "s5.v3": "コード、数学、システム",
+    "s5.mantra": "多くを語らない。<br>必要なことだけ言う。<br>結果で示す。",
+    "s5.do1": "「定義すれば実行される。」", "s5.do1d": "短く確信のある文",
+    "s5.dont1": "「皆様のニーズに合ったソリューションを全力でご提供いたします！」", "s5.dont1d": "過剰な約束、感情的表現",
+    "s6.title": "使い方",
+    "s6.1.label": "6.1 — ロゴルール",
+    "s6.do1": "十分な余白、原寸比率", "s6.dont1": "比率の変形",
+    "s6.2.label": "6.2 — 適用例",
+    "s7.title": "アセット",
+  },
+  zh: {
+    "cover.sub": "一个接口。无限实现。",
+    "s1.title": "品牌概念",
+    "s1.1.label": "1.1 — 核心故事",
+    "s1.1.hero": "如同接口般的存在。<br>本身是空的，<br>但定义实现后，结果便会产生。",
+    "s1.1.desc": "interfn是interface与function的合成词。虽然为空但可调用，一旦定义便发生转换——用品牌表达开发者的思维方式。",
+    "s1.1.reading": "ín-tər-fən",
+    "s1.1.tagline": "一个接口。无限实现。",
+    "s1.2.label": "1.2 — 以代码诠释品牌",
+    "s1.2.cm1": "// 这里还没有任何东西。",
+    "s1.2.cm2": "// 但有契约。",
+    "s1.2.cm3": "// 定义的那一刻，",
+    "s1.2.cm4": "// 颜色诞生了。",
+    "s1.2.note": "虽空但可调用。定义即转换。",
+    "s1.3.label": "1.3 — 转换流程",
+    "s1.3.void": "空的接口",
+    "s1.3.define": "定义实现",
+    "s1.3.call": "调用函数",
+    "s1.3.output": "产生结果",
+    "s1.4.label": "1.4 — 品牌关键词",
+    "s1.5.label": "1.5 — 品牌个性",
+    "s1.5.a1": "华丽", "s1.5.b1": "极简",
+    "s1.5.a2": "感性", "s1.5.b2": "逻辑",
+    "s1.5.a3": "具体", "s1.5.b3": "抽象",
+    "s1.5.a4": "喧嚣", "s1.5.b4": "安静",
+    "s1.5.a5": "固定", "s1.5.b5": "适应",
+    "s1.6.label": "1.6 — 命名延展",
+    "s1.6.pitch": "\"一个接口。<br>无限实现。\"",
+    "s2.title": "标识",
+    "s2.1.desc": "两条轨道共享一个中心却不闭合。外轨轻盈(interface)，内轨厚重(function)。视觉重量完全相等。",
+    "s3.title": "色彩系统",
+    "s3.1.label": "3.1 — 核心色板",
+    "s3.1.desc": "默认单色。根据场景允许单色变体。接口没有自己的颜色。",
+    "s3.2.label": "3.2 — 色彩原则",
+    "s3.2.quote": "\"形态不变。任何颜色都能运作。\"",
+    "s3.2.desc": "接口没有固有颜色——任何颜色都行，标识始终如一。这就是interfn的色彩哲学。",
+    "s3.3.label": "3.3 — 渐变色板",
+    "s4.title": "排版",
+    "s4.1.desc": "所有文本使用Inter字体。以统一字体表达接口的一致性。",
+    "s4.headline": "在你与技术的接口处",
+    "s4.body": "如同接口般的存在。本身是空的，但定义实现后，结果便会产生。",
+    "s5.title": "语调与声音",
+    "s5.k1": "性格", "s5.v1": "安静但确定",
+    "s5.k2": "语气", "s5.v2": "简短、直接、无赘言",
+    "s5.k3": "比喻", "s5.v3": "代码、数学、系统",
+    "s5.mantra": "不多说。<br>只说必要的。<br>用结果展示。",
+    "s5.do1": "\"定义即执行。\"", "s5.do1d": "简短而自信的表述",
+    "s5.dont1": "\"我们将竭尽全力为您提供满足需求的解决方案！\"", "s5.dont1d": "过度承诺、情绪化表达",
+    "s6.title": "用法",
+    "s6.1.label": "6.1 — 标识规则",
+    "s6.do1": "充足留白、原始比例", "s6.dont1": "比例变形",
+    "s6.2.label": "6.2 — 应用示例",
+    "s7.title": "资源",
+  }
+};
+
+const supportedLangs = ['ko', 'en', 'ja', 'zh'];
+let currentLang = 'en';
+let currentTheme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+
+/* ═══ Theme ═══ */
+function toggleTheme() {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  updateThemeIcon();
+  localStorage.setItem('interfn-theme', currentTheme);
+}
+function updateThemeIcon() {
+  document.getElementById('themeToggle').textContent = currentTheme === 'dark' ? '☀' : '☾';
+}
+
+/* ═══ Language ═══ */
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang] && i18n[lang][key]) {
+      el.innerHTML = i18n[lang][key];
+    }
+  });
+  document.querySelectorAll('.fh-btn[data-lang]').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+  });
+  localStorage.setItem('interfn-lang', lang);
+}
+
+/* ═══ Floating Header + Controls ═══ */
+function initHeader() {
+  const header = document.getElementById('floatHeader');
+  const controls = document.getElementById('floatControls');
+  const cover = document.getElementById('coverSection');
+  const observer = new IntersectionObserver(([entry]) => {
+    const scrolled = !entry.isIntersecting;
+    header.classList.toggle('visible', scrolled);
+    controls.style.top = scrolled ? '10px' : '12px';
+  }, { threshold: 0 });
+  observer.observe(cover);
+}
+
+/* ═══ Detect Browser Language ═══ */
+function detectLang() {
+  const navLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  for (const lang of supportedLangs) {
+    if (navLang.startsWith(lang)) return lang;
+  }
+  return 'en';
+}
+
+/* ═══ Init ═══ */
+(function init() {
+  const savedTheme = localStorage.getItem('interfn-theme');
+  const savedLang = localStorage.getItem('interfn-lang');
+  if (savedTheme) { currentTheme = savedTheme; }
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  currentLang = savedLang || detectLang();
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+    if (!localStorage.getItem('interfn-theme')) {
+      currentTheme = e.matches ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', currentTheme);
+      updateThemeIcon();
+    }
+  });
+  updateThemeIcon();
+  setLang(currentLang);
+  initHeader();
+})();
+</script>
+</body>
+</html>
