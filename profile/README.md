@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/interfn/.github/raw/main/assets/lockup-dark-800.png" alt="interfn" width="320" />
+  <img src="https://raw.githubusercontent.com/interfn/.github/main/assets/lockup-dark-800.png" alt="interfn" width="320" />
 </p>
 
 <p align="center">
