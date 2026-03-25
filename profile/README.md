@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-dark-512.png" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-light-512.png" />
-    <img src="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-dark-512.png" alt="interfn" width="128" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/interfn/.github/blob/main/assets/avatar-dark.svg?raw=true" />
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/interfn/.github/blob/main/assets/avatar-light.svg?raw=true" />
+    <img src="https://github.com/interfn/.github/blob/main/assets/avatar-dark.svg?raw=true" alt="interfn" width="128" />
   </picture>
 </p>
 
