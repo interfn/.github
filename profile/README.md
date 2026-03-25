@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/interfn/.github/main/assets/lockup-dark-800.png" alt="interfn" width="320" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-dark-512.png" />
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-light-512.png" />
+    <img src="https://raw.githubusercontent.com/interfn/.github/main/assets/avatar-dark-512.png" alt="interfn" width="128" />
+  </picture>
 </p>
 
 <p align="center">
